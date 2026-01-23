@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片上传（20MB以下）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        .upload-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .upload-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        #file-input {
+            display: none;
+        }
+        .upload-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .upload-btn:hover {
+            background-color: #0056b3;
+        }
+        .preview-box {
+            width: 100%;
+            min-height: 200px;
+            border: 1px dashed #ccc;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        .preview-img {
+            max-width: 100%;
+            max-height: 400px;
+            display: none;
+        }
+        .tip-text {
+            color: #666;
+            font-size: 14px;
+        }
+        .error-text {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <h2 class="upload-title">图片上传（限制20MB以内）</h2>
+        <label for="file-input" class="upload-btn">选择图片</label>
+        <input type="file" id="file-input" accept="image/*">
+        <div class="error-text" id="error-tip"></div>
+        <div class="preview-box">
+            <span class="tip-text" id="preview-tip">图片预览区域</span>
+            <img src="" alt="预览图" class="preview-img" id="preview-img">
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const fileInput = document.getElementById('file-input');
+        const errorTip = document.getElementById('error-tip');
+        const previewTip = document.getElementById('preview-tip');
+        const previewImg = document.getElementById('preview-img');
+
+        // 最大文件大小：20MB（转换为字节）
+        const MAX_SIZE = 20 * 1024 * 1024;
+
+        // 监听文件选择事件
+        fileInput.addEventListener('change', function(e) {
+            // 清空之前的错误提示和预览图
+            errorTip.style.display = 'none';
+            previewImg.style.display = 'none';
+            previewTip.style.display = 'block';
+
+            // 获取选中的文件
+            const file = this.files[0];
+            if (!file) return;
+
+            // 1. 校验文件类型（确保是图片）
+            if (!file.type.startsWith('image/')) {
+                errorTip.textContent = '请选择图片格式的文件！';
+                errorTip.style.display = 'block';
+                return;
+            }
+
+            // 2. 校验文件大小
+            if (file.size > MAX_SIZE) {
+                errorTip.textContent = `文件大小超过20MB限制（当前大小：${(file.size / 1024 / 1024).toFixed(2)}MB）`;
+                errorTip.style.display = 'block';
+                return;
+            }
+
+            // 3. 预览图片
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewTip.style.display = 'none';
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            // 此处可添加上传逻辑（例如通过AJAX发送到后端）
+            // 示例：uploadFile(file);
+        });
+
+        // 可选：文件上传函数（示例）
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            // 发送POST请求到后端接口
+            /*
+            fetch('你的后端上传接口地址', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('上传成功：', data);
+                // 上传成功后的逻辑
+            })
+            .catch(error => {
+                console.error('上传失败：', error);
+                errorTip.textContent = '图片上传失败，请重试！';
+                errorTip.style.display = 'block';
+            });
+            */
+        }
+    </script>
+</body>
+</html>
